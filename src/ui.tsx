@@ -239,3 +239,4 @@ export const ListIcon = () => icon(<path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.
 export const ZapIcon = () => icon(<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />);
 export const TrophyIcon = () =>
   icon(<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4" />);
+export const HistoryIcon = () => icon(<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2" />);

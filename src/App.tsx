@@ -5,9 +5,9 @@ import { CardDialog } from "./CardDialog";
 import { Column } from "./Column";
 import { daysBetween, localIsoDate } from "./dates";
 import { SprintDialog } from "./SprintDialog";
-import { SprintHistory } from "./SprintHistory";
+import { SprintHistoryDialog } from "./SprintHistory";
 import type { SaveStatus } from "./saver";
-import { Button, CalendarIcon, ConfirmDialog, FlagIcon, ProgressRing, cn } from "./ui";
+import { Button, CalendarIcon, ConfirmDialog, FlagIcon, HistoryIcon, ProgressRing, cn } from "./ui";
 import { useBoard } from "./useBoard";
 
 export function App() {
@@ -48,6 +48,7 @@ function BoardView({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [planning, setPlanning] = useState(false);
   const [confirmingComplete, setConfirmingComplete] = useState(false);
+  const [showingHistory, setShowingHistory] = useState(false);
   const [celebration, setCelebration] = useState<{ id: string; key: number } | null>(null);
   const editingCard = editingId === null ? undefined : board.cards.find((c) => c.id === editingId);
   const unfinished = board.cards.filter((c) => c.status === "todo" || c.status === "doing").length;
@@ -78,17 +79,28 @@ function BoardView({
           </h1>
           <SaveIndicator status={saveStatus} />
         </div>
-        {board.sprint ? (
-          <Button onClick={() => setConfirmingComplete(true)}>
-            <FlagIcon />
-            Complete sprint
+        <div className="flex flex-wrap gap-2">
+          <Button variant="ghost" onClick={() => setShowingHistory(true)}>
+            <HistoryIcon />
+            Past sprints
+            {board.history.length > 0 && (
+              <span className="rounded-full bg-zinc-900/5 px-1.5 text-xs font-bold tabular-nums dark:bg-white/10">
+                {board.history.length}
+              </span>
+            )}
           </Button>
-        ) : (
-          <Button variant="primary" onClick={() => setPlanning(true)}>
-            <FlagIcon />
-            Start sprint
-          </Button>
-        )}
+          {board.sprint ? (
+            <Button onClick={() => setConfirmingComplete(true)}>
+              <FlagIcon />
+              Complete sprint
+            </Button>
+          ) : (
+            <Button variant="primary" onClick={() => setPlanning(true)}>
+              <FlagIcon />
+              Start sprint
+            </Button>
+          )}
+        </div>
       </header>
 
       <SprintCard board={board} onStart={() => setPlanning(true)} />
@@ -115,8 +127,8 @@ function BoardView({
         </main>
       </LayoutGroup>
 
-      <SprintHistory history={board.history} />
 
+      {showingHistory && <SprintHistoryDialog history={board.history} onClose={() => setShowingHistory(false)} />}
       {editingCard && <CardDialog card={editingCard} dispatch={act} onClose={() => setEditingId(null)} />}
       {planning && (
         <SprintDialog

@@ -29,7 +29,7 @@ To back up or move your board, copy `data/board.json`. To keep it somewhere else
 1. Add everything you want to do to **Backlog**.
 2. Click **Start sprint**, then name it, set a goal and pick the dates.
 3. Drag the cards you commit to into **To Do**, then through **In Progress** to **Done**.
-4. Click **Complete sprint**. Done cards go to the sprint history and unfinished ones return to the Backlog.
+4. Click **Complete sprint**. Done cards go to the sprint history (open it with **Past sprints** in the header) and unfinished ones return to the Backlog.
 
 ## Recurring cards
 
