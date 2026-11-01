@@ -1,4 +1,13 @@
 @import "tailwindcss";
+@import "@fontsource-variable/bricolage-grotesque";
+@import "@fontsource-variable/figtree";
+
+@theme {
+  --font-sans: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
+  --color-paper: #f6f4ef;
+  --color-ink: #0e0f13;
+}
 
 @layer base {
   html {
@@ -6,6 +15,21 @@
   }
 
   body {
-    @apply bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
+    @apply bg-paper font-sans text-zinc-900 antialiased dark:bg-ink dark:text-zinc-100;
+    /* A faint dot grid, like a planner page. */
+    background-image: radial-gradient(rgb(24 24 27 / 0.07) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      background-image: radial-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px);
+    }
+  }
+
+  button:not(:disabled),
+  summary,
+  [role="button"] {
+    cursor: pointer;
   }
 }

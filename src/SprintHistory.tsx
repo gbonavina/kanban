@@ -6,15 +6,15 @@ export function SprintHistory({ history }: { history: CompletedSprint[] }) {
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-sm font-semibold">
+      <h2 className="font-display text-lg font-bold">
         Past sprints <span className="font-normal text-zinc-500 tabular-nums">({history.length})</span>
       </h2>
-      <ul className="divide-y divide-zinc-200 overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xs dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
+      <ul className="divide-y divide-zinc-200 overflow-hidden rounded-3xl border border-zinc-900/5 bg-white/70 shadow-sm dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
         {[...history].reverse().map((sprint) => (
           <li key={sprint.id}>
             <details className="group">
-              <summary className="flex cursor-pointer list-none flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
-                <span className="text-sm font-medium">{sprint.name}</span>
+              <summary className="flex cursor-pointer list-none flex-wrap items-baseline gap-x-3 gap-y-1 px-5 py-3.5 transition-colors duration-150 hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
+                <span className="font-display text-sm font-bold">{sprint.name}</span>
                 <span className="text-xs text-zinc-500 tabular-nums dark:text-zinc-400">
                   {sprint.startDate} – {sprint.endDate}
                 </span>
@@ -22,7 +22,7 @@ export function SprintHistory({ history }: { history: CompletedSprint[] }) {
                   {sprint.doneCards.length} done · {formatPoints(totalPoints(sprint.doneCards))}
                 </span>
               </summary>
-              <div className="flex flex-col gap-2 px-4 pb-4">
+              <div className="flex flex-col gap-2 px-5 pb-4">
                 {sprint.goal && (
                   <p className="text-sm text-pretty text-zinc-600 dark:text-zinc-400">Goal: {sprint.goal}</p>
                 )}

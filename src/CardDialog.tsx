@@ -137,10 +137,10 @@ export function CardDialog({
 
 function RepeatField({ repeat, onChange }: { repeat: Weekday[] | null; onChange: (repeat: Weekday[] | null) => void }) {
   const chip = cn(
-    "rounded-full border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-50",
+    "rounded-full border border-zinc-200 px-3.5 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50",
     "dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800",
-    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600",
-    "aria-pressed:border-blue-600 aria-pressed:bg-blue-600 aria-pressed:text-white aria-pressed:hover:bg-blue-700",
+    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600",
+    "aria-pressed:border-violet-600 aria-pressed:bg-violet-600 aria-pressed:text-white aria-pressed:hover:bg-violet-700",
   );
 
   return (
@@ -174,9 +174,9 @@ function RepeatField({ repeat, onChange }: { repeat: Weekday[] | null; onChange:
             className={cn(
               "flex size-9 items-center justify-center rounded-full border border-zinc-200 text-xs font-medium text-zinc-600",
               "hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800",
-              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600",
-              "data-pressed:border-blue-600 data-pressed:bg-blue-50 data-pressed:text-blue-700",
-              "dark:data-pressed:bg-blue-950 dark:data-pressed:text-blue-300",
+              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600",
+              "data-pressed:border-violet-600 data-pressed:bg-violet-50 data-pressed:text-violet-700",
+              "dark:data-pressed:bg-violet-950 dark:data-pressed:text-violet-300",
             )}
           >
             {w.letter}
