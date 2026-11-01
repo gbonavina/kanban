@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 import { STATUS_LABELS, STATUSES, totalPoints, type Board, type BoardAction } from "./board";
 import { CardDialog } from "./CardDialog";
 import { Column } from "./Column";
-import { daysBetween, localIsoDate } from "./dates";
+import { daysBetween, formatDate, localIsoDate } from "./dates";
 import { SprintDialog } from "./SprintDialog";
 import { SprintHistoryDialog } from "./SprintHistory";
 import type { SaveStatus } from "./saver";
@@ -20,13 +20,13 @@ export function App() {
         <BoardSkeleton />
       ) : state.status === "failed" ? (
         <div className="mx-auto mt-[20dvh] flex max-w-sm flex-col items-center gap-3 px-4 text-center">
-          <h1 className="font-display text-2xl font-bold text-balance">Couldn't load your board</h1>
+          <h1 className="font-display text-2xl font-bold text-balance">Não foi possível carregar seu quadro</h1>
           <p className="text-sm text-pretty text-zinc-600 dark:text-zinc-400">
-            {state.error}. Make sure the server is running with <code className="font-mono">npm start</code>, then
-            try again.
+            {state.error}. Verifique se o servidor está rodando com <code className="font-mono">npm start</code> e
+            tente de novo.
           </p>
           <Button variant="primary" onClick={reload}>
-            Try again
+            Tentar de novo
           </Button>
         </div>
       ) : (
@@ -51,7 +51,8 @@ function BoardView({
   const [showingHistory, setShowingHistory] = useState(false);
   const [celebration, setCelebration] = useState<{ id: string; key: number } | null>(null);
   const editingCard = editingId === null ? undefined : board.cards.find((c) => c.id === editingId);
-  const unfinished = board.cards.filter((c) => c.status === "todo" || c.status === "doing").length;
+  // Recurring cards stay on the board, so only one-offs go back to the Backlog.
+  const unfinished = board.cards.filter((c) => (c.status === "todo" || c.status === "doing") && !c.repeat).length;
 
   // Same as dispatch, plus a little celebration whenever a card is finished.
   const act = useCallback(
@@ -82,7 +83,7 @@ function BoardView({
         <div className="flex flex-wrap gap-2">
           <Button variant="ghost" onClick={() => setShowingHistory(true)}>
             <HistoryIcon />
-            Past sprints
+            Sprints anteriores
             {board.history.length > 0 && (
               <span className="rounded-full bg-zinc-900/5 px-1.5 text-xs font-bold tabular-nums dark:bg-white/10">
                 {board.history.length}
@@ -92,12 +93,12 @@ function BoardView({
           {board.sprint ? (
             <Button onClick={() => setConfirmingComplete(true)}>
               <FlagIcon />
-              Complete sprint
+              Concluir sprint
             </Button>
           ) : (
             <Button variant="primary" onClick={() => setPlanning(true)}>
               <FlagIcon />
-              Start sprint
+              Iniciar sprint
             </Button>
           )}
         </div>
@@ -143,13 +144,13 @@ function BoardView({
       <ConfirmDialog
         open={confirmingComplete}
         onOpenChange={setConfirmingComplete}
-        title={`Complete ${board.sprint?.name ?? "sprint"}?`}
+        title={`Concluir ${board.sprint?.name ?? "sprint"}?`}
         description={
           unfinished > 0
-            ? `Done cards move to the sprint history. ${unfinished} unfinished card${unfinished === 1 ? "" : "s"} will go back to the Backlog (recurring cards stay).`
-            : "Done cards move to the sprint history."
+            ? `Os cartões concluídos vão para o histórico da sprint. ${unfinished} ${unfinished === 1 ? "cartão não terminado volta" : "cartões não terminados voltam"} para o Backlog.`
+            : "Os cartões concluídos vão para o histórico da sprint."
         }
-        confirmLabel="Complete sprint"
+        confirmLabel="Concluir sprint"
         onConfirm={() => dispatch({ type: "completeSprint", now: new Date().toISOString() })}
       />
     </div>
@@ -158,11 +159,12 @@ function BoardView({
 
 function greeting(): string {
   const hour = new Date().getHours();
-  return hour < 5 ? "Burning the midnight oil" : hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  return hour < 5 ? "Virando a noite" : hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
 }
 
 function todayLabel(): string {
-  return new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  const label = new Date().toLocaleDateString("pt-BR", { weekday: "long", month: "long", day: "numeric" });
+  return label[0]!.toUpperCase() + label.slice(1);
 }
 
 function SprintCard({ board, onStart }: { board: Board; onStart: () => void }) {
@@ -171,12 +173,12 @@ function SprintCard({ board, onStart }: { board: Board; onStart: () => void }) {
     return (
       <section className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border-2 border-dashed border-zinc-300 bg-white/50 px-6 py-5 dark:border-zinc-700 dark:bg-zinc-900/40">
         <div className="flex flex-col gap-1">
-          <h2 className="font-display text-lg font-bold text-balance">No sprint running</h2>
+          <h2 className="font-display text-lg font-bold text-balance">Nenhuma sprint em andamento</h2>
           <p className="text-sm text-pretty text-zinc-600 dark:text-zinc-400">
-            Fill your Backlog, then start a sprint to commit to what you'll do this week.
+            Preencha seu Backlog e depois inicie uma sprint para se comprometer com o que vai fazer nesta semana.
           </p>
         </div>
-        <Button onClick={onStart}>Plan a sprint</Button>
+        <Button onClick={onStart}>Planejar uma sprint</Button>
       </section>
     );
   }
@@ -188,8 +190,8 @@ function SprintCard({ board, onStart }: { board: Board; onStart: () => void }) {
   const total = totalPoints(sprintCards);
   const [done, max, unit] =
     total > 0
-      ? [totalPoints(doneCards), total, total === 1 ? "pt" : "pts"]
-      : [doneCards.length, sprintCards.length, sprintCards.length === 1 ? "card" : "cards"];
+      ? [totalPoints(doneCards), total, total === 1 ? "pt concluído" : "pts concluídos"]
+      : [doneCards.length, sprintCards.length, sprintCards.length === 1 ? "cartão concluído" : "cartões concluídos"];
   const percent = max === 0 ? 0 : Math.round((done / max) * 100);
 
   return (
@@ -204,13 +206,13 @@ function SprintCard({ board, onStart }: { board: Board; onStart: () => void }) {
         aria-hidden
       />
       <div className="relative flex min-w-0 flex-1 flex-col gap-2">
-        <p className="text-xs font-semibold tracking-wider text-violet-300 uppercase">Current sprint</p>
+        <p className="text-xs font-semibold tracking-wider text-violet-300 uppercase">Sprint atual</p>
         <h2 className="font-display text-2xl font-bold text-balance">{sprint.name}</h2>
         {sprint.goal && <p className="max-w-prose text-sm text-pretty text-zinc-300">{sprint.goal}</p>}
         <div className="mt-1 flex flex-wrap gap-2 text-xs font-medium">
           <span className="flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 tabular-nums">
             <CalendarIcon />
-            {sprint.startDate} – {sprint.endDate}
+            {formatDate(sprint.startDate)} – {formatDate(sprint.endDate)}
           </span>
           <span
             className={cn(
@@ -219,12 +221,12 @@ function SprintCard({ board, onStart }: { board: Board; onStart: () => void }) {
             )}
           >
             {daysLeft > 1
-              ? `${daysLeft} days left`
+              ? `Faltam ${daysLeft} dias`
               : daysLeft === 1
-                ? "1 day left"
+                ? "Falta 1 dia"
                 : daysLeft === 0
-                  ? "Ends today"
-                  : "Overdue"}
+                  ? "Termina hoje"
+                  : "Atrasada"}
           </span>
         </div>
       </div>
@@ -234,7 +236,7 @@ function SprintCard({ board, onStart }: { board: Board; onStart: () => void }) {
             {done}
             <span className="text-lg text-zinc-400">/{max}</span>
           </p>
-          <p className="text-xs text-zinc-400">{unit} done</p>
+          <p className="text-xs text-zinc-400">{unit}</p>
         </div>
         <ProgressRing percent={percent} onDark />
       </div>
@@ -244,9 +246,9 @@ function SprintCard({ board, onStart }: { board: Board; onStart: () => void }) {
 
 function SaveIndicator({ status }: { status: SaveStatus }) {
   const { label, dot } = {
-    saved: { label: "All changes saved", dot: "bg-emerald-500" },
-    saving: { label: "Saving…", dot: "bg-violet-500 animate-pulse" },
-    error: { label: "Not saved yet. Can't reach the server, retrying…", dot: "bg-amber-500 animate-pulse" },
+    saved: { label: "Todas as alterações salvas", dot: "bg-emerald-500" },
+    saving: { label: "Salvando…", dot: "bg-violet-500 animate-pulse" },
+    error: { label: "Ainda não salvo. Sem conexão com o servidor, tentando de novo…", dot: "bg-amber-500 animate-pulse" },
   }[status];
   return (
     <p
@@ -267,7 +269,7 @@ function BoardSkeleton() {
     <div
       className="mx-auto flex min-h-dvh max-w-[1440px] animate-pulse flex-col gap-7 px-4 py-8 sm:px-8"
       aria-busy
-      aria-label="Loading your board"
+      aria-label="Carregando seu quadro"
     >
       <div className="flex flex-col gap-2">
         <div className="h-4 w-40 rounded-md bg-zinc-200 dark:bg-zinc-800" />

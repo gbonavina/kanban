@@ -9,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** "1 pt", "3 pts". */
+/** "1 pt", "3 pts" (pontos). */
 export function formatPoints(n: number): string {
   return `${n} ${n === 1 ? "pt" : "pts"}`;
 }
@@ -130,7 +130,7 @@ export function ConfirmDialog({
             </AlertDialog.Description>
           </div>
           <div className="flex justify-end gap-2">
-            <AlertDialog.Close className={buttonClasses("default")}>Cancel</AlertDialog.Close>
+            <AlertDialog.Close className={buttonClasses("default")}>Cancelar</AlertDialog.Close>
             <AlertDialog.Close className={buttonClasses("danger")} onClick={onConfirm}>
               {confirmLabel}
             </AlertDialog.Close>
@@ -151,7 +151,7 @@ export function ProgressRing({ percent, size = 72, onDark = false }: { percent: 
       className="relative shrink-0"
       style={{ width: size, height: size }}
       role="progressbar"
-      aria-label="Sprint progress"
+      aria-label="Progresso da sprint"
       aria-valuenow={percent}
       aria-valuemin={0}
       aria-valuemax={100}

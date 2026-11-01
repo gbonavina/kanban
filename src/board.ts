@@ -3,9 +3,9 @@ export type Status = (typeof STATUSES)[number];
 
 export const STATUS_LABELS: Record<Status, string> = {
   backlog: "Backlog",
-  todo: "To Do",
-  doing: "In Progress",
-  done: "Done",
+  todo: "A fazer",
+  doing: "Em andamento",
+  done: "Concluído",
 };
 
 /** Day of the week, 0 = Sunday … 6 = Saturday (as Date#getDay). */
@@ -13,6 +13,12 @@ export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export const PRIORITIES = ["low", "medium", "high"] as const;
 export type Priority = (typeof PRIORITIES)[number];
+
+export const PRIORITY_LABELS: Record<Priority, string> = {
+  low: "Baixa",
+  medium: "Média",
+  high: "Alta",
+};
 
 export interface Card {
   id: string;

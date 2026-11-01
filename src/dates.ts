@@ -6,6 +6,12 @@ export function localIsoDate(date: Date): string {
   return local.toISOString().slice(0, 10);
 }
 
+/** "29/10/2026" from "2026-10-29", without timezone shifts. */
+export function formatDate(isoDate: string): string {
+  const [year, month, day] = isoDate.split("-");
+  return `${day}/${month}/${year}`;
+}
+
 export function addDays(date: Date, days: number): Date {
   return new Date(date.getTime() + days * DAY_MS);
 }

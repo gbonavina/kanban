@@ -14,9 +14,9 @@ function nextRevision(): number {
 
 export async function fetchBoard(): Promise<Board> {
   const res = await fetch(BOARD_ENDPOINT);
-  if (!res.ok) throw new Error(`Loading the board failed (${res.status})`);
+  if (!res.ok) throw new Error(`Falha ao carregar o quadro (${res.status})`);
   const board = parseBoard(await res.json());
-  if (!board) throw new Error("The server sent an invalid board");
+  if (!board) throw new Error("O servidor enviou um quadro inválido");
   return board;
 }
 
@@ -29,5 +29,5 @@ export async function sendBoard(board: Board, keepalive = false): Promise<void> 
     body,
     keepalive: keepalive && body.length < KEEPALIVE_LIMIT,
   });
-  if (!res.ok) throw new Error(`Saving the board failed (${res.status})`);
+  if (!res.ok) throw new Error(`Falha ao salvar o quadro (${res.status})`);
 }

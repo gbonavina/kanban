@@ -3,6 +3,7 @@ import { ToggleGroup } from "@base-ui/react/toggle-group";
 import { useState } from "react";
 import {
   PRIORITIES,
+  PRIORITY_LABELS,
   STATUS_LABELS,
   STATUSES,
   type BoardAction,
@@ -31,26 +32,26 @@ export function CardDialog({
   const update = (changes: CardChanges) => dispatch({ type: "updateCard", id: card.id, changes });
 
   return (
-    <Modal title="Edit card" onClose={onClose}>
+    <Modal title="Editar cartão" onClose={onClose}>
       <div className="flex flex-col gap-4 px-6 py-5">
-        <Field label="Title">
+        <Field label="Título">
           <input
             className={fieldClasses}
             value={card.title}
             onChange={(e) => update({ title: e.target.value })}
-            onBlur={(e) => !e.target.value.trim() && update({ title: "Untitled" })}
+            onBlur={(e) => !e.target.value.trim() && update({ title: "Sem título" })}
           />
         </Field>
-        <Field label="Description">
+        <Field label="Descrição">
           <textarea
             className={cn(fieldClasses, "min-h-24 resize-y")}
             value={card.description}
             onChange={(e) => update({ description: e.target.value })}
-            placeholder="Notes, steps, links…"
+            placeholder="Notas, passos, links…"
           />
         </Field>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <Field label="Column">
+          <Field label="Coluna">
             <select
               className={fieldClasses}
               value={card.status}
@@ -71,7 +72,7 @@ export function CardDialog({
               ))}
             </select>
           </Field>
-          <Field label="Priority">
+          <Field label="Prioridade">
             <select
               className={cn(fieldClasses, "capitalize")}
               value={card.priority}
@@ -79,7 +80,7 @@ export function CardDialog({
             >
               {PRIORITIES.map((p) => (
                 <option key={p} value={p}>
-                  {p[0]!.toUpperCase() + p.slice(1)}
+                  {PRIORITY_LABELS[p]}
                 </option>
               ))}
             </select>
@@ -103,8 +104,8 @@ export function CardDialog({
         </div>
         <RepeatField repeat={card.repeat} onChange={(repeat) => update({ repeat })} />
         <p className="text-xs text-zinc-500 tabular-nums dark:text-zinc-400">
-          Created {new Date(card.createdAt).toLocaleString()}
-          {card.completedAt && ` · Done ${new Date(card.completedAt).toLocaleString()}`}
+          Criado em {new Date(card.createdAt).toLocaleString("pt-BR")}
+          {card.completedAt && ` · Concluído em ${new Date(card.completedAt).toLocaleString("pt-BR")}`}
         </p>
       </div>
       <ModalFooter>
@@ -113,19 +114,19 @@ export function CardDialog({
           className="mr-auto text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
           onClick={() => setConfirmingDelete(true)}
         >
-          Delete
+          Excluir
         </Button>
         <Button variant="primary" onClick={onClose}>
-          Done
+          Pronto
         </Button>
       </ModalFooter>
 
       <ConfirmDialog
         open={confirmingDelete}
         onOpenChange={setConfirmingDelete}
-        title="Delete this card?"
-        description={`"${card.title}" will be removed from the board. This can't be undone.`}
-        confirmLabel="Delete card"
+        title="Excluir este cartão?"
+        description={`"${card.title}" será removido do quadro. Isso não pode ser desfeito.`}
+        confirmLabel="Excluir cartão"
         onConfirm={() => {
           dispatch({ type: "deleteCard", id: card.id });
           onClose();
@@ -145,7 +146,7 @@ function RepeatField({ repeat, onChange }: { repeat: Weekday[] | null; onChange:
 
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="mb-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">Repeat</legend>
+      <legend className="mb-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">Repetir</legend>
       <div className="flex flex-wrap gap-2">
         {REPEAT_PRESETS.map((preset) => (
           <button
@@ -161,7 +162,7 @@ function RepeatField({ repeat, onChange }: { repeat: Weekday[] | null; onChange:
       </div>
       <ToggleGroup
         multiple
-        aria-label="Repeat on these days"
+        aria-label="Repetir nestes dias"
         value={(repeat ?? []).map(String)}
         onValueChange={(days) => onChange(days.length ? (days.map(Number).sort() as Weekday[]) : null)}
         className="flex gap-1.5"
@@ -185,8 +186,8 @@ function RepeatField({ repeat, onChange }: { repeat: Weekday[] | null; onChange:
       </ToggleGroup>
       <p className="text-xs text-pretty text-zinc-500 dark:text-zinc-400">
         {repeat
-          ? "When you finish this card, a fresh copy appears in To Do on the next chosen day."
-          : "Pick days to make this a routine that comes back after you finish it."}
+          ? "Quando você concluir este cartão, uma nova cópia aparece em A fazer no próximo dia escolhido."
+          : "Escolha os dias para transformar isto em uma rotina que volta depois de concluída."}
       </p>
     </fieldset>
   );

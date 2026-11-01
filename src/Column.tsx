@@ -1,6 +1,15 @@
 import { motion } from "motion/react";
 import { useEffect, useState, type DragEvent, type KeyboardEvent, type ReactNode } from "react";
-import { STATUS_LABELS, STATUSES, totalPoints, type BoardAction, type Card, type Priority, type Status } from "./board";
+import {
+  PRIORITY_LABELS,
+  STATUS_LABELS,
+  STATUSES,
+  totalPoints,
+  type BoardAction,
+  type Card,
+  type Priority,
+  type Status,
+} from "./board";
 import { describeRepeat } from "./repeat";
 import {
   ArrowRightIcon,
@@ -23,22 +32,22 @@ const COLUMN_STYLES: Record<Status, { icon: ReactNode; chip: string; hint: strin
   backlog: {
     icon: <InboxIcon />,
     chip: "bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
-    hint: "Everything you want to do, someday.",
+    hint: "Tudo o que você quer fazer, algum dia.",
   },
   todo: {
     icon: <ListIcon />,
     chip: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
-    hint: "Drag in what you'll do this sprint.",
+    hint: "Arraste para cá o que você fará nesta sprint.",
   },
   doing: {
     icon: <ZapIcon />,
     chip: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
-    hint: "Drag a card here when you start it.",
+    hint: "Arraste um cartão para cá quando começar.",
   },
   done: {
     icon: <TrophyIcon />,
     chip: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
-    hint: "Finished cards land here. Go get one!",
+    hint: "Os cartões concluídos aparecem aqui. Bora concluir um!",
   },
 };
 
@@ -194,8 +203,8 @@ export function Column({
             addDraft();
             setComposing(false);
           }}
-          placeholder="What needs doing? Press Enter to add"
-          aria-label={`New card in ${title}`}
+          placeholder="O que precisa ser feito? Enter para adicionar"
+          aria-label={`Novo cartão em ${title}`}
           autoFocus
         />
       ) : (
@@ -211,7 +220,7 @@ export function Column({
           <span className="transition-transform duration-200 ease-out group-hover:rotate-90">
             <PlusIcon />
           </span>
-          Add card
+          Adicionar cartão
         </button>
       )}
     </section>
@@ -300,8 +309,8 @@ function CardItem({
             <button
               type="button"
               onClick={onAdvance}
-              aria-label={`Move "${card.title}" to ${nextLabel}`}
-              title={`Move to ${nextLabel}`}
+              aria-label={`Mover "${card.title}" para ${nextLabel}`}
+              title={`Mover para ${nextLabel}`}
               className={cn(
                 "relative z-10 -m-1 flex size-8 shrink-0 items-center justify-center rounded-xl text-zinc-400 opacity-0 transition-[opacity,background-color,color] duration-150",
                 "group-hover:opacity-100 hover:bg-violet-50 hover:text-violet-700 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-violet-600",
@@ -318,13 +327,13 @@ function CardItem({
           </p>
         )}
         <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
-          <span className={cn("rounded-lg px-2 py-0.5 capitalize", PRIORITY_CHIPS[card.priority])}>
-            {card.priority}
+          <span className={cn("rounded-lg px-2 py-0.5", PRIORITY_CHIPS[card.priority])}>
+            {PRIORITY_LABELS[card.priority]}
           </span>
           {card.repeat && (
             <span
               className="flex items-center gap-1 rounded-lg bg-violet-50 px-2 py-0.5 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300"
-              title="Recurring card"
+              title="Cartão recorrente"
             >
               <RepeatIcon />
               {describeRepeat(card.repeat)}
