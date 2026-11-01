@@ -1,5 +1,5 @@
 import { useState, type DragEvent, type FormEvent } from "react";
-import type { BoardAction, Card, Status } from "./board";
+import { totalPoints, type BoardAction, type Card, type Status } from "./board";
 
 const DRAG_TYPE = "application/x-kanban-card";
 
@@ -18,7 +18,7 @@ export function Column({
 }) {
   const [draft, setDraft] = useState("");
   const [dropIndex, setDropIndex] = useState<number | null>(null);
-  const points = cards.reduce((sum, c) => sum + (c.points ?? 0), 0);
+  const points = totalPoints(cards);
 
   function addCard(e: FormEvent) {
     e.preventDefault();

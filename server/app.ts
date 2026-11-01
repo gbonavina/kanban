@@ -20,6 +20,10 @@ const CONTENT_TYPES: Record<string, string> = {
 };
 
 export function createApp({ store, staticDir }: AppOptions): Server {
+  // Two saves from the page can race (e.g. a regular save and the last-chance
+  // save on tab close). Each carries a rising revision; a late older one is dropped.
+  let latestRevision = -Infinity;
+
   return createServer(async (req, res) => {
     try {
       if (req.url === "/api/board" && req.method === "GET") {
@@ -28,6 +32,11 @@ export function createApp({ store, staticDir }: AppOptions): Server {
       if (req.url === "/api/board" && req.method === "PUT") {
         const board = parseBoard(parseJson(await readBody(req)));
         if (!board) return sendJson(res, 400, { error: "Body is not a valid board" });
+        const revision = Number(req.headers["x-board-revision"] ?? NaN);
+        if (Number.isFinite(revision)) {
+          if (revision <= latestRevision) return res.writeHead(204).end();
+          latestRevision = revision;
+        }
         await store.save(board);
         res.writeHead(204).end();
         return;

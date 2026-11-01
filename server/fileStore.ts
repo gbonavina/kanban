@@ -1,4 +1,4 @@
-import { readFile, rename, writeFile } from "node:fs/promises";
+import { open, readFile, rename } from "node:fs/promises";
 import { emptyBoard, parseBoard, type Board } from "../src/board";
 
 export interface BoardStore {
@@ -18,13 +18,10 @@ export function createFileStore(path: string): BoardStore {
   return {
     async load() {
       const main = await readIfExists(path);
-      if (main === null) {
-        return readBoard(await readIfExists(backup)) ?? emptyBoard();
-      }
       const board = readBoard(main);
       if (board) return board;
 
-      await rename(path, `${path}.corrupt-${Date.now()}`);
+      if (main !== null) await rename(path, `${path}.corrupt-${Date.now()}`);
       return readBoard(await readIfExists(backup)) ?? emptyBoard();
     },
 
@@ -49,11 +46,17 @@ function readBoard(text: string | null): Board | null {
   }
 }
 
-// Write to a temp file and rename over the original, so a crash mid-write
-// can never leave a half-written file behind.
+// Write to a temp file, flush it to disk, then rename over the original, so a
+// crash or power loss mid-write can never leave a half-written file behind.
 async function writeAtomically(path: string, text: string): Promise<void> {
   const tmp = `${path}.tmp`;
-  await writeFile(tmp, text);
+  const file = await open(tmp, "w");
+  try {
+    await file.writeFile(text);
+    await file.sync();
+  } finally {
+    await file.close();
+  }
   await rename(tmp, path);
 }
 

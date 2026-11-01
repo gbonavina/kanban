@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { STATUS_LABELS, STATUSES, type Board, type BoardAction, type Card } from "./board";
+import { STATUS_LABELS, STATUSES, totalPoints, type Board, type BoardAction, type Card } from "./board";
 import { CardDialog } from "./CardDialog";
 import { Column } from "./Column";
 import { SprintDialog } from "./SprintDialog";
@@ -104,8 +104,7 @@ function SprintSummary({ board }: { board: Board }) {
   }
   const daysLeft = daysBetween(localIsoDate(new Date()), sprint.endDate);
   const sprintCards = board.cards.filter((c) => c.status !== "backlog");
-  const points = (cards: Card[]) => cards.reduce((sum, c) => sum + (c.points ?? 0), 0);
-  const donePoints = points(sprintCards.filter((c) => c.status === "done"));
+  const donePoints = totalPoints(sprintCards.filter((c) => c.status === "done"));
 
   return (
     <div className="sprint-summary">
@@ -113,7 +112,7 @@ function SprintSummary({ board }: { board: Board }) {
       <span className="muted">
         {sprint.startDate} → {sprint.endDate} ·{" "}
         {daysLeft > 0 ? `${daysLeft} day(s) left` : daysLeft === 0 ? "ends today" : "overdue"} ·{" "}
-        {donePoints}/{points(sprintCards)} pts done
+        {donePoints}/{totalPoints(sprintCards)} pts done
       </span>
       {sprint.goal && <span className="sprint-goal">Goal: {sprint.goal}</span>}
     </div>
@@ -124,7 +123,7 @@ function SaveIndicator({ status }: { status: SaveStatus }) {
   const label = {
     saved: "All changes saved",
     saving: "Saving…",
-    error: "Can't reach the server, retrying…",
+    error: "Not saved yet, retrying…",
   }[status];
   return <span className={`save-status save-${status}`}>{label}</span>;
 }

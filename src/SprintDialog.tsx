@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import type { Sprint } from "./board";
 import { addDays, localIsoDate } from "./dates";
+import { useModalDialog } from "./useModalDialog";
 
 export function SprintDialog({
   sprintNumber,
@@ -11,16 +12,13 @@ export function SprintDialog({
   onStart: (sprint: Omit<Sprint, "id">) => void;
   onClose: () => void;
 }) {
-  const ref = useRef<HTMLDialogElement>(null);
+  const ref = useModalDialog();
   const today = new Date();
   const [name, setName] = useState(`Sprint ${sprintNumber}`);
   const [goal, setGoal] = useState("");
   const [startDate, setStartDate] = useState(localIsoDate(today));
   const [endDate, setEndDate] = useState(localIsoDate(addDays(today, 6)));
 
-  useEffect(() => {
-    if (!ref.current?.open) ref.current?.showModal();
-  }, []);
 
   function submit(e: FormEvent) {
     e.preventDefault();

@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import { useModalDialog } from "./useModalDialog";
 import {
   PRIORITIES,
   STATUS_LABELS,
@@ -20,12 +21,9 @@ export function CardDialog({
   dispatch: (action: BoardAction) => void;
   onClose: () => void;
 }) {
-  const ref = useRef<HTMLDialogElement>(null);
+  const ref = useModalDialog();
   const [pointsText, setPointsText] = useState(card.points === null ? "" : String(card.points));
 
-  useEffect(() => {
-    if (!ref.current?.open) ref.current?.showModal();
-  }, []);
 
   const update = (changes: CardChanges) => dispatch({ type: "updateCard", id: card.id, changes });
 

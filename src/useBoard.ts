@@ -8,7 +8,11 @@ type State = { status: "loading" } | { status: "failed"; error: string } | { sta
 type Event = { type: "loaded"; board: Board } | { type: "failed"; error: string } | BoardAction;
 
 function reducer(state: State, event: Event): State {
-  if (event.type === "loaded") return { status: "ready", board: event.board };
+  // Ignore a repeat load (React StrictMode runs effects twice in dev) so it
+  // can't replace edits made in between with the older stored board.
+  if (event.type === "loaded") {
+    return state.status === "ready" ? state : { status: "ready", board: event.board };
+  }
   if (event.type === "failed") return { status: "failed", error: event.error };
   if (state.status !== "ready") return state;
   return { status: "ready", board: boardReducer(state.board, event) };
@@ -22,14 +26,14 @@ function reducer(state: State, event: Event): State {
 export function useBoard() {
   const [state, dispatchEvent] = useReducer(reducer, { status: "loading" });
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("saved");
-  const saver = useRef(createSaver({ send: (b) => sendBoard(b), onStatus: setSaveStatus }));
+  const [saver] = useState(() => createSaver({ send: sendBoard, onStatus: setSaveStatus }));
   const loadedBoard = useRef<Board | null>(null);
   const latestBoard = useRef<Board | null>(null);
 
   const reload = useCallback(() => {
     fetchBoard().then(
       (board) => {
-        loadedBoard.current = board;
+        loadedBoard.current ??= board;
         dispatchEvent({ type: "loaded", board });
       },
       (err: Error) => dispatchEvent({ type: "failed", error: err.message }),
@@ -45,19 +49,19 @@ export function useBoard() {
     latestBoard.current = board;
     // The freshly loaded board is already on disk; only save real changes.
     if (board === loadedBoard.current) return;
-    saver.current.save(board);
-  }, [board]);
+    saver.save(board);
+  }, [board, saver]);
 
   useEffect(() => {
     const onUnload = (e: BeforeUnloadEvent) => {
-      if (!saver.current.hasUnsavedChanges() || !latestBoard.current) return;
+      if (!saver.hasUnsavedChanges() || !latestBoard.current) return;
       // Last-chance save that outlives the page, then ask the browser to warn.
       void sendBoard(latestBoard.current, true).catch(() => {});
       e.preventDefault();
     };
     window.addEventListener("beforeunload", onUnload);
     return () => window.removeEventListener("beforeunload", onUnload);
-  }, []);
+  }, [saver]);
 
   const dispatch = useCallback((action: BoardAction) => dispatchEvent(action), []);
 

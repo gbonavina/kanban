@@ -142,6 +142,10 @@ function insertIntoColumn(cards: Card[], card: Card, index: number): Card[] {
   return [...cards.slice(0, at), card, ...cards.slice(at)];
 }
 
+export function totalPoints(cards: Card[]): number {
+  return cards.reduce((sum, c) => sum + (c.points ?? 0), 0);
+}
+
 /** Returns `value` as a Board if it has the right shape, otherwise null. */
 export function parseBoard(value: unknown): Board | null {
   if (!isObject(value) || value.version !== 1) return null;

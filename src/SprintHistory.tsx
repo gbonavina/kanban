@@ -1,4 +1,4 @@
-import type { CompletedSprint } from "./board";
+import { totalPoints, type CompletedSprint } from "./board";
 
 export function SprintHistory({ history }: { history: CompletedSprint[] }) {
   if (history.length === 0) return null;
@@ -8,7 +8,7 @@ export function SprintHistory({ history }: { history: CompletedSprint[] }) {
       <summary>Past sprints ({history.length})</summary>
       <ul>
         {[...history].reverse().map((sprint) => {
-          const points = sprint.doneCards.reduce((sum, c) => sum + (c.points ?? 0), 0);
+          const points = totalPoints(sprint.doneCards);
           return (
             <li key={sprint.id}>
               <details>

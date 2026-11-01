@@ -34,10 +34,13 @@ function boardWith(title: string): Board {
   });
 }
 
-function put(body: unknown) {
+function put(body: unknown, revision?: number) {
   return fetch(url, {
     method: "PUT",
-    headers: { "content-type": "application/json" },
+    headers: {
+      "content-type": "application/json",
+      ...(revision !== undefined && { "x-board-revision": String(revision) }),
+    },
     body: JSON.stringify(body),
   });
 }
@@ -69,5 +72,14 @@ describe("/api/board", () => {
 
     expect(results.map((r) => r.status)).toEqual(Array(10).fill(204));
     expect(boards).toContainEqual(await (await fetch(url)).json());
+  });
+
+  it("ignores a save that arrives after a newer revision was already stored", async () => {
+    await put(boardWith("Newer"), 2);
+
+    const late = await put(boardWith("Older"), 1);
+
+    expect(late.status).toBe(204);
+    expect(await (await fetch(url)).json()).toEqual(boardWith("Newer"));
   });
 });
