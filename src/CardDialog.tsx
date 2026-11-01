@@ -1,3 +1,5 @@
+import { Toggle } from "@base-ui/react/toggle";
+import { ToggleGroup } from "@base-ui/react/toggle-group";
 import { useState } from "react";
 import {
   PRIORITIES,
@@ -8,7 +10,9 @@ import {
   type CardChanges,
   type Priority,
   type Status,
+  type Weekday,
 } from "./board";
+import { REPEAT_PRESETS, WEEK, sameDays } from "./repeat";
 import { Button, ConfirmDialog, Field, Modal, ModalFooter, cn, fieldClasses } from "./ui";
 
 /** Edits a card. Every field saves as you type; there is no "save" step to forget. */
@@ -97,6 +101,7 @@ export function CardDialog({
             />
           </Field>
         </div>
+        <RepeatField repeat={card.repeat} onChange={(repeat) => update({ repeat })} />
         <p className="text-xs text-zinc-500 tabular-nums dark:text-zinc-400">
           Created {new Date(card.createdAt).toLocaleString()}
           {card.completedAt && ` · Done ${new Date(card.completedAt).toLocaleString()}`}
@@ -127,5 +132,62 @@ export function CardDialog({
         }}
       />
     </Modal>
+  );
+}
+
+function RepeatField({ repeat, onChange }: { repeat: Weekday[] | null; onChange: (repeat: Weekday[] | null) => void }) {
+  const chip = cn(
+    "rounded-full border border-zinc-200 px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-50",
+    "dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800",
+    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600",
+    "aria-pressed:border-blue-600 aria-pressed:bg-blue-600 aria-pressed:text-white aria-pressed:hover:bg-blue-700",
+  );
+
+  return (
+    <fieldset className="flex flex-col gap-2">
+      <legend className="mb-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">Repeat</legend>
+      <div className="flex flex-wrap gap-2">
+        {REPEAT_PRESETS.map((preset) => (
+          <button
+            key={preset.label}
+            type="button"
+            aria-pressed={sameDays(preset.days, repeat)}
+            className={chip}
+            onClick={() => onChange(preset.days)}
+          >
+            {preset.label}
+          </button>
+        ))}
+      </div>
+      <ToggleGroup
+        multiple
+        aria-label="Repeat on these days"
+        value={(repeat ?? []).map(String)}
+        onValueChange={(days) => onChange(days.length ? (days.map(Number).sort() as Weekday[]) : null)}
+        className="flex gap-1.5"
+      >
+        {WEEK.map((w) => (
+          <Toggle
+            key={w.day}
+            value={String(w.day)}
+            aria-label={w.short}
+            className={cn(
+              "flex size-9 items-center justify-center rounded-full border border-zinc-200 text-xs font-medium text-zinc-600",
+              "hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800",
+              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600",
+              "data-pressed:border-blue-600 data-pressed:bg-blue-50 data-pressed:text-blue-700",
+              "dark:data-pressed:bg-blue-950 dark:data-pressed:text-blue-300",
+            )}
+          >
+            {w.letter}
+          </Toggle>
+        ))}
+      </ToggleGroup>
+      <p className="text-xs text-pretty text-zinc-500 dark:text-zinc-400">
+        {repeat
+          ? "When you finish this card, a fresh copy appears in To Do on the next chosen day."
+          : "Pick days to make this a routine that comes back after you finish it."}
+      </p>
+    </fieldset>
   );
 }

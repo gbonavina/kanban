@@ -36,6 +36,7 @@ describe("boardReducer", () => {
         points: null,
         createdAt: NOW,
         completedAt: null,
+        repeat: null,
       },
     ]);
   });
@@ -157,4 +158,75 @@ describe("boardReducer", () => {
       expect(board.sprint?.id).toBe("s1");
     });
   });
+
+  describe("recurring cards", () => {
+    // Sunday 2026-11-01 finished; the user opens the board on Monday 2026-11-02.
+    function newDay(today: string, weekday: number): BoardAction {
+      return { type: "newDay", today, dayStart: `${today}T03:00:00.000Z`, weekday, now: `${today}T07:00:00.000Z` };
+    }
+    const MONDAY = newDay("2026-11-02", 1);
+
+    const finishedDailyCard: BoardAction[] = [
+      add("run", "todo"),
+      { type: "updateCard", id: "run", changes: { repeat: [0, 1, 2, 3, 4, 5, 6], points: 2 } },
+      { type: "moveCard", id: "run", now: "2026-11-01T12:00:00.000Z", status: "done", index: 0 },
+    ];
+
+    it("puts a fresh copy in To Do on the next scheduled day after it was finished", () => {
+      const board = run(...finishedDailyCard, MONDAY);
+
+      expect(column(board, "done")).toEqual(["run"]);
+      const [fresh] = board.cards.filter((c) => c.status === "todo");
+      expect(fresh).toMatchObject({
+        title: "Task run",
+        points: 2,
+        repeat: [0, 1, 2, 3, 4, 5, 6],
+        completedAt: null,
+        createdAt: "2026-11-02T07:00:00.000Z",
+      });
+      expect(fresh?.id).not.toBe("run");
+      // Only the new copy carries the schedule forward, so it spawns once.
+      expect(board.cards.find((c) => c.id === "run")?.repeat).toBeNull();
+    });
+
+    it("does nothing on a day the card isn't scheduled for", () => {
+      const weekendsOnly = run(...finishedDailyCard, {
+        type: "updateCard",
+        id: "run",
+        changes: { repeat: [0, 6] },
+      });
+
+      expect(boardReducer(weekendsOnly, MONDAY)).toBe(weekendsOnly);
+    });
+
+    it("waits until tomorrow when the card was finished today", () => {
+      const board = run(...finishedDailyCard);
+
+      expect(boardReducer(board, newDay("2026-11-01", 0))).toBe(board);
+    });
+
+    it("spawns only one copy no matter how often the day is checked", () => {
+      const board = run(...finishedDailyCard, MONDAY, MONDAY);
+
+      expect(column(board, "todo")).toHaveLength(1);
+    });
+
+    it("keeps recurring cards going when a sprint completes", () => {
+      const board = run(
+        { type: "startSprint", id: "s1", name: "S", goal: "", startDate: "2026-11-01", endDate: "2026-11-07" },
+        ...finishedDailyCard,
+        add("stretch", "todo"),
+        { type: "updateCard", id: "stretch", changes: { repeat: [1, 2, 3, 4, 5] } },
+        add("oneoff", "todo"),
+        { type: "completeSprint", now: LATER },
+      );
+
+      expect(board.history[0]?.doneCards.map((c) => c.id)).toEqual(["run"]);
+      expect(column(board, "backlog")).toEqual(["oneoff"]);
+      const todo = board.cards.filter((c) => c.status === "todo");
+      expect(todo.map((c) => c.title)).toEqual(["Task stretch", "Task run"]);
+      expect(todo.every((c) => c.repeat !== null)).toBe(true);
+    });
+  });
 });
+

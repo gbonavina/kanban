@@ -31,6 +31,10 @@ To back up or move your board, copy `data/board.json`. To keep it somewhere else
 3. Drag the cards you commit to into **To Do**, then through **In Progress** to **Done**.
 4. Click **Complete sprint**. Done cards go to the sprint history and unfinished ones return to the Backlog.
 
+## Recurring cards
+
+Open a card and pick when it repeats under **Repeat**: every day, weekdays, or any days you choose. When you finish a recurring card it stays in Done for the day, and a fresh copy appears in To Do on its next chosen day. That happens when you open the board, or at midnight if it's already open. Recurring cards stay on the board when a sprint completes instead of going back to the Backlog.
+
 ## Scripts
 
 - `npm test` runs the tests

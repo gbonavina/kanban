@@ -67,4 +67,23 @@ describe("createFileStore", () => {
 
     expect((await createFileStore(file).load()).cards.map((c) => c.title)).toEqual(["Real"]);
   });
+
+  it("loads boards saved before recurring cards existed", async () => {
+    const card = {
+      id: "a",
+      title: "Old card",
+      description: "",
+      status: "todo",
+      priority: "medium",
+      points: null,
+      createdAt: "2026-11-01T10:00:00.000Z",
+      completedAt: null,
+    };
+    await writeFile(file, JSON.stringify({ version: 1, cards: [card], sprint: null, history: [] }));
+
+    const loaded = await createFileStore(file).load();
+
+    expect(loaded.cards).toEqual([{ ...card, repeat: null }]);
+    expect((await readdir(dir)).some((f) => f.includes("corrupt"))).toBe(false);
+  });
 });

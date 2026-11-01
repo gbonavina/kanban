@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { fetchBoard, sendBoard } from "./api";
 import { boardReducer, type Board, type BoardAction } from "./board";
+import { newDayAction } from "./repeat";
 import { createSaver, type SaveStatus } from "./saver";
 
 type State = { status: "loading" } | { status: "failed"; error: string } | { status: "ready"; board: Board };
@@ -15,7 +16,8 @@ function reducer(state: State, event: Event): State {
   }
   if (event.type === "failed") return { status: "failed", error: event.error };
   if (state.status !== "ready") return state;
-  return { status: "ready", board: boardReducer(state.board, event) };
+  const board = boardReducer(state.board, event);
+  return board === state.board ? state : { status: "ready", board };
 }
 
 /**
@@ -43,6 +45,21 @@ export function useBoard() {
   useEffect(reload, [reload]);
 
   const board = state.status === "ready" ? state.board : null;
+  const ready = board !== null;
+
+  // Bring recurring cards back when the board opens and whenever the date
+  // changes while it stays open (checked each minute and on tab focus).
+  useEffect(() => {
+    if (!ready) return;
+    const check = () => dispatchEvent(newDayAction(new Date()));
+    check();
+    const timer = setInterval(check, 60_000);
+    document.addEventListener("visibilitychange", check);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", check);
+    };
+  }, [ready]);
 
   useEffect(() => {
     if (!board) return;

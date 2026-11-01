@@ -1,6 +1,7 @@
 import { useState, type DragEvent, type KeyboardEvent } from "react";
 import { STATUS_LABELS, STATUSES, totalPoints, type BoardAction, type Card, type Status } from "./board";
-import { ArrowRightIcon, Button, PlusIcon, cn, fieldClasses, formatPoints } from "./ui";
+import { describeRepeat } from "./repeat";
+import { ArrowRightIcon, Button, PlusIcon, RepeatIcon, cn, fieldClasses, formatPoints } from "./ui";
 
 const DRAG_TYPE = "application/x-kanban-card";
 
@@ -227,6 +228,12 @@ function CardTile({
           <span className={cn("size-1.5 rounded-full", PRIORITY_DOTS[card.priority])} aria-hidden />
           {card.priority}
         </span>
+        {card.repeat && (
+          <span className="flex items-center gap-1" title="Recurring card">
+            <RepeatIcon />
+            {describeRepeat(card.repeat)}
+          </span>
+        )}
         {card.points !== null && (
           <span className="rounded bg-zinc-100 px-1.5 font-medium tabular-nums dark:bg-zinc-800">
             {formatPoints(card.points)}
