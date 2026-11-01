@@ -65,7 +65,12 @@ jobs:
           path: release
           merge-multiple: true
 
+      # The artifacts keep their folders (release/…, dist-html/…), so match at any depth.
       - uses: softprops/action-gh-release@v3
         with:
-          files: release/*
+          files: |
+            release/**/*.AppImage
+            release/**/*.deb
+            release/**/*.exe
+            release/**/*.html
           generate_release_notes: true
