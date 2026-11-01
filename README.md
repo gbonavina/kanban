@@ -9,6 +9,8 @@ Download the latest build from the [Releases page](https://github.com/gbonavina/
 - **Windows:** `minha-rotina-<version>-setup.exe` installs it for your user, with a Start menu shortcut (no admin rights needed). `minha-rotina-<version>-portable.exe` runs without installing. The builds aren't code-signed, so the first time Windows SmartScreen says "Windows protected your PC": click **More info**, then **Run anyway**.
 - **Linux:** `minha-rotina-<version>-amd64.deb` for Ubuntu/Debian (`sudo apt install ./minha-rotina-*.deb`), or `minha-rotina-<version>-x86_64.AppImage` for any distro (`chmod +x` it and run it).
 
+- **Any computer, nothing to install:** `minha-rotina.html` is the whole board in one file. Double-click it to open it in your browser. See [The single HTML file](#the-single-html-file) for how it saves.
+
 Only one copy of the app runs at a time; opening it again brings the existing window forward.
 
 ## Run from source
@@ -22,6 +24,19 @@ npm run app
 
 To use it in a browser instead, run `npm start` and open http://localhost:4321. For development with hot reload, run `npm run dev` and open the URL Vite prints.
 
+## The single HTML file
+
+`npm run build:html` builds `dist-html/minha-rotina.html`: the same board, with its code, styles and fonts all inside one file that works offline. It's useful where you can't install programs, such as a work computer.
+
+It has everything the app has, but it saves your board **in the browser** (localStorage) instead of in `board.json`:
+
+- The board belongs to that browser and that user profile. Opening the file in another browser starts an empty board.
+- Clearing the browser's data (or a computer that wipes it on logout) erases the board, so keep a copy. Open **Dados** in the header to:
+  - **Backup automático em arquivo** (Chrome and Edge): pick a file once and every change is also written there. In a later session the browser may ask you to allow it again; the **Dados** button shows an amber dot when it does.
+  - **Exportar / Importar**: download the board as a `.json` file, or replace the board with one you exported. The same buttons work in the app and with `npm start`, so you can move a board between them.
+- In Firefox, the board is tied to the folder the file is in. Moving the file starts an empty board there; move it back, or export and import.
+- Two tabs of the file stay in sync.
+
 ## Release a new version
 
 Push a version tag:
@@ -31,7 +46,7 @@ git tag v1.1.0
 git push origin v1.1.0
 ```
 
-The GitHub Actions workflow (`.github/workflows/release.yml`) runs the tests, builds the Windows and Linux files on real Windows and Linux machines, and publishes them as a GitHub Release named after the tag. You can also start it by hand from the **Actions** tab to get the files as build artifacts without making a release.
+The GitHub Actions workflow (`.github/workflows/release.yml`) runs the tests, builds the Windows and Linux files on real Windows and Linux machines plus `minha-rotina.html`, and publishes them as a GitHub Release named after the tag. You can also start it by hand from the **Actions** tab to get the files as build artifacts without making a release.
 
 To build the Linux files locally, run `npm run dist`; they land in `release/`.
 
@@ -72,6 +87,7 @@ Open a card and pick when it repeats under **Repeat**: every day, weekdays, or a
 ## Scripts
 
 - `npm run app` opens the desktop app
+- `npm run build:html` builds the single HTML file into `dist-html/`
 - `npm run dist` packages the desktop app for the current OS into `release/`
 - `npm test` runs the tests
 - `npm run typecheck` type-checks the code

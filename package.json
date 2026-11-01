@@ -13,6 +13,7 @@
     "start": "vite build && tsx server/main.ts",
     "dev": "concurrently -k -n api,web \"tsx watch server/main.ts\" \"vite\"",
     "build": "vite build",
+    "build:html": "vite build --mode html",
     "build:electron": "esbuild electron/main.ts --bundle --platform=node --format=cjs --target=node22 --external:electron --outfile=dist-electron/main.cjs",
     "app": "vite build && npm run build:electron && electron . --no-sandbox",
     "dist": "vite build && npm run build:electron && electron-builder --publish never",
@@ -41,6 +42,7 @@
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vite": "^8.3.5",
+    "vite-plugin-singlefile": "^2.3.4",
     "vitest": "^5.0.5"
   }
 }

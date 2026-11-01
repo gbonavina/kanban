@@ -38,6 +38,11 @@ jobs:
 
       - run: npm run dist
 
+      # The single-file version is the same on every OS, so it's built once.
+      - name: Build the single HTML file
+        if: runner.os == 'Linux'
+        run: npm run build:html
+
       - uses: actions/upload-artifact@v7
         with:
           name: minha-rotina-${{ runner.os }}
@@ -46,6 +51,7 @@ jobs:
             release/*.AppImage
             release/*.deb
             release/*.exe
+            dist-html/minha-rotina.html
 
   release:
     needs: build

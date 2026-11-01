@@ -242,3 +242,7 @@ export const TrophyIcon = () =>
 export const HistoryIcon = () => icon(<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2" />);
 export const KanbanIcon = () => icon(<path d="M5 3h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM15 3h4a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />);
 export const ChartIcon = () => icon(<path d="M3 3v18h18M8 17V11M13 17V7M18 17v-4" />);
+export const DatabaseIcon = () =>
+  icon(<path d="M12 8c4.4 0 8-1.3 8-3s-3.6-3-8-3-8 1.3-8 3 3.6 3 8 3zM4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" />);
+export const DownloadIcon = () => icon(<path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16" />);
+export const UploadIcon = () => icon(<path d="M12 15V3m0 0L7 8m5-5l5 5M4 21h16" />);
