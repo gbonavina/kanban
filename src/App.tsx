@@ -6,6 +6,7 @@ import { Column } from "./Column";
 import { daysBetween, formatDate, localIsoDate } from "./dates";
 import { SprintDialog } from "./SprintDialog";
 import { SprintHistoryDialog } from "./SprintHistory";
+import { ThemeToggle } from "./ThemeToggle";
 import type { SaveStatus } from "./saver";
 import { Button, CalendarIcon, ConfirmDialog, FlagIcon, HistoryIcon, ProgressRing, cn } from "./ui";
 import { useBoard } from "./useBoard";
@@ -81,6 +82,7 @@ function BoardView({
           <SaveIndicator status={saveStatus} />
         </div>
         <div className="flex flex-wrap gap-2">
+          <ThemeToggle />
           <Button variant="ghost" onClick={() => setShowingHistory(true)}>
             <HistoryIcon />
             Sprints anteriores

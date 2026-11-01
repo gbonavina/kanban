@@ -2,6 +2,9 @@
 @import "@fontsource-variable/bricolage-grotesque";
 @import "@fontsource-variable/figtree";
 
+/* Dark mode follows a .dark class on <html>, set by the theme toggle (src/theme.ts). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
@@ -11,7 +14,11 @@
 
 @layer base {
   html {
-    color-scheme: light dark;
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
   }
 
   body {
@@ -21,10 +28,8 @@
     background-size: 22px 22px;
   }
 
-  @media (prefers-color-scheme: dark) {
-    body {
-      background-image: radial-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px);
-    }
+  .dark body {
+    background-image: radial-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px);
   }
 
   button:not(:disabled),
