@@ -2,3 +2,5 @@ node_modules
 dist
 data/*.json*
 data/*.tmp
+dist-electron
+release

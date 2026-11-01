@@ -1,0 +1,44 @@
+appId: io.github.gbonavina.kanban
+productName: Minha Rotina
+copyright: Copyright © 2026 gbonavina
+
+directories:
+  output: release
+  buildResources: build
+
+# The frontend (dist/) and the Electron entry (dist-electron/) are fully
+# bundled, so no node_modules ship with the app.
+files:
+  - dist/**/*
+  - dist-electron/**/*
+  - build/icon.png
+  - package.json
+
+linux:
+  target: [AppImage, deb]
+  category: Office
+  executableName: minha-rotina
+  syncDesktopName: true
+  icon: build/icon.png
+  synopsis: Quadro Scrum pessoal para a sua rotina
+  artifactName: minha-rotina-${version}-${arch}.${ext}
+
+deb:
+  maintainer: gbonavina <gabriellbona@gmail.com>
+
+win:
+  target: [nsis, portable]
+  icon: build/icon.png
+
+nsis:
+  # Installs for the current user only, so it needs no admin rights.
+  oneClick: true
+  perMachine: false
+  shortcutName: Minha Rotina
+  artifactName: minha-rotina-${version}-setup.exe
+
+portable:
+  artifactName: minha-rotina-${version}-portable.exe
+
+# Releases are uploaded by the GitHub Actions workflow, not by electron-builder.
+publish: null
