@@ -17,6 +17,11 @@ function column(board: Board, status: Status): string[] {
 }
 
 describe("boardReducer", () => {
+  it("replaces the whole board with an imported one", () => {
+    const imported: Board = { ...emptyBoard(), sprint: { id: "s1", name: "S1", goal: "", startDate: "", endDate: "" } };
+    expect(boardReducer(emptyBoard(), { type: "replaceBoard", board: imported })).toBe(imported);
+  });
+
   it("adds a new card to the end of the backlog", () => {
     const board = boardReducer(emptyBoard(), {
       type: "addCard",

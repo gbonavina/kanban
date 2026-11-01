@@ -2,9 +2,11 @@ import { Tabs } from "@base-ui/react/tabs";
 import { LayoutGroup, MotionConfig, motion } from "motion/react";
 import { useCallback, useState } from "react";
 import { STATUS_LABELS, STATUSES, totalPoints, type Board, type BoardAction } from "./board";
+import { backend } from "./backend";
 import { CardDialog } from "./CardDialog";
 import { Column } from "./Column";
 import { Dashboard } from "./Dashboard";
+import { DataDialog, useDataNeedsAttention } from "./DataDialog";
 import { daysBetween, formatDate, localIsoDate } from "./dates";
 import { SprintDialog } from "./SprintDialog";
 import { SprintHistoryDialog } from "./SprintHistory";
@@ -15,6 +17,7 @@ import {
   CalendarIcon,
   ChartIcon,
   ConfirmDialog,
+  DatabaseIcon,
   FlagIcon,
   HistoryIcon,
   KanbanIcon,
@@ -35,8 +38,7 @@ export function App() {
         <div className="mx-auto mt-[20dvh] flex max-w-sm flex-col items-center gap-3 px-4 text-center">
           <h1 className="font-display text-2xl font-bold text-balance">Não foi possível carregar seu quadro</h1>
           <p className="text-sm text-pretty text-zinc-600 dark:text-zinc-400">
-            {state.error}. Verifique se o servidor está rodando com <code className="font-mono">npm start</code> e tente
-            de novo.
+            {state.error}. {backend.loadHelp}
           </p>
           <Button variant="primary" onClick={reload}>
             Tentar de novo
@@ -62,6 +64,8 @@ function BoardView({
   const [planning, setPlanning] = useState(false);
   const [confirmingComplete, setConfirmingComplete] = useState(false);
   const [showingHistory, setShowingHistory] = useState(false);
+  const [showingData, setShowingData] = useState(false);
+  const dataNeedsAttention = useDataNeedsAttention();
   const [view, setView] = useView();
   const [celebration, setCelebration] = useState<{ id: string; key: number } | null>(null);
   const editingCard = editingId === null ? undefined : board.cards.find((c) => c.id === editingId);
@@ -98,6 +102,13 @@ function BoardView({
           <div className="flex flex-wrap gap-2">
             <ViewSwitch />
             <ThemeToggle />
+            <Button variant="ghost" onClick={() => setShowingData(true)} className="relative">
+              <DatabaseIcon />
+              Dados
+              {dataNeedsAttention && (
+                <span className="absolute top-2 right-2 size-2 rounded-full bg-amber-500" aria-label="precisa de atenção" />
+              )}
+            </Button>
             <Button variant="ghost" onClick={() => setShowingHistory(true)}>
               <HistoryIcon />
               Sprints anteriores
@@ -152,6 +163,13 @@ function BoardView({
         </Tabs.Panel>
       </Tabs.Root>
 
+      {showingData && (
+        <DataDialog
+          board={board}
+          onImport={(imported) => dispatch({ type: "replaceBoard", board: imported })}
+          onClose={() => setShowingData(false)}
+        />
+      )}
       {showingHistory && <SprintHistoryDialog history={board.history} onClose={() => setShowingHistory(false)} />}
       {editingCard && <CardDialog card={editingCard} dispatch={act} onClose={() => setEditingId(null)} />}
       {planning && (
@@ -308,7 +326,7 @@ function SaveIndicator({ status }: { status: SaveStatus }) {
     saved: { label: "Todas as alterações salvas", dot: "bg-emerald-500" },
     saving: { label: "Salvando…", dot: "bg-violet-500 animate-pulse" },
     error: {
-      label: "Ainda não salvo. Sem conexão com o servidor, tentando de novo…",
+      label: backend.saveErrorLabel,
       dot: "bg-amber-500 animate-pulse",
     },
   }[status];

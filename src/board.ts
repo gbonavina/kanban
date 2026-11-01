@@ -68,7 +68,9 @@ export type BoardAction =
    * Sent when the board opens and whenever the date changes. `dayStart` is
    * local midnight as an ISO timestamp, `weekday` today's local weekday.
    */
-  | { type: "newDay"; today: string; dayStart: string; weekday: number; now: string };
+  | { type: "newDay"; today: string; dayStart: string; weekday: number; now: string }
+  /** Swaps in a whole board, e.g. one imported from a backup file. */
+  | { type: "replaceBoard"; board: Board };
 
 export type CardChanges = Partial<Pick<Card, "title" | "description" | "priority" | "points" | "repeat">>;
 
@@ -78,6 +80,8 @@ export function emptyBoard(): Board {
 
 export function boardReducer(board: Board, action: BoardAction): Board {
   switch (action.type) {
+    case "replaceBoard":
+      return action.board;
     case "addCard":
       return {
         ...board,
