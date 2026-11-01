@@ -9,9 +9,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** "1 pt", "3 pts" (pontos). */
+/** "1 pt", "3 pts", "12,5 pts" (pontos). */
 export function formatPoints(n: number): string {
-  return `${n} ${n === 1 ? "pt" : "pts"}`;
+  return `${n.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} ${n === 1 ? "pt" : "pts"}`;
 }
 
 type ButtonVariant = "default" | "primary" | "danger" | "ghost";
@@ -240,3 +240,5 @@ export const ZapIcon = () => icon(<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />);
 export const TrophyIcon = () =>
   icon(<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4" />);
 export const HistoryIcon = () => icon(<path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2" />);
+export const KanbanIcon = () => icon(<path d="M5 3h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM15 3h4a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />);
+export const ChartIcon = () => icon(<path d="M3 3v18h18M8 17V11M13 17V7M18 17v-4" />);

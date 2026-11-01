@@ -52,7 +52,7 @@ const COLUMN_STYLES: Record<Status, { icon: ReactNode; chip: string; hint: strin
 };
 
 const PRIORITY_CHIPS: Record<Priority, string> = {
-  low: "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
+  low: "bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300",
   medium: "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300",
   high: "bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-300",
 };

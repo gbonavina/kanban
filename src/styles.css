@@ -38,3 +38,29 @@
     cursor: pointer;
   }
 }
+
+/*
+ * Chart colors, validated with the dataviz palette checker against the card
+ * surfaces (white / zinc-900). Priority hues match the board's priority chips.
+ */
+:root {
+  --viz-series: #7c3aed;
+  --viz-series-soft: rgb(124 58 237 / 0.1);
+  --viz-high: #e11d48;
+  --viz-medium: #f59e0b;
+  --viz-low: #0d9488;
+  --viz-grid: #ececee;
+  --viz-axis: #d4d4d8;
+  --viz-muted: #71717a;
+}
+
+.dark {
+  --viz-series: #8b5cf6;
+  --viz-series-soft: rgb(139 92 246 / 0.12);
+  --viz-high: #e11d48;
+  --viz-medium: #d97706;
+  --viz-low: #0d9488;
+  --viz-grid: #27272a;
+  --viz-axis: #3f3f46;
+  --viz-muted: #a1a1aa;
+}

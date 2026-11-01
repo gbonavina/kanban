@@ -1,14 +1,26 @@
+import { Tabs } from "@base-ui/react/tabs";
 import { LayoutGroup, MotionConfig, motion } from "motion/react";
 import { useCallback, useState } from "react";
 import { STATUS_LABELS, STATUSES, totalPoints, type Board, type BoardAction } from "./board";
 import { CardDialog } from "./CardDialog";
 import { Column } from "./Column";
+import { Dashboard } from "./Dashboard";
 import { daysBetween, formatDate, localIsoDate } from "./dates";
 import { SprintDialog } from "./SprintDialog";
 import { SprintHistoryDialog } from "./SprintHistory";
 import { ThemeToggle } from "./ThemeToggle";
 import type { SaveStatus } from "./saver";
-import { Button, CalendarIcon, ConfirmDialog, FlagIcon, HistoryIcon, ProgressRing, cn } from "./ui";
+import {
+  Button,
+  CalendarIcon,
+  ChartIcon,
+  ConfirmDialog,
+  FlagIcon,
+  HistoryIcon,
+  KanbanIcon,
+  ProgressRing,
+  cn,
+} from "./ui";
 import { useBoard } from "./useBoard";
 
 export function App() {
@@ -23,8 +35,8 @@ export function App() {
         <div className="mx-auto mt-[20dvh] flex max-w-sm flex-col items-center gap-3 px-4 text-center">
           <h1 className="font-display text-2xl font-bold text-balance">Não foi possível carregar seu quadro</h1>
           <p className="text-sm text-pretty text-zinc-600 dark:text-zinc-400">
-            {state.error}. Verifique se o servidor está rodando com <code className="font-mono">npm start</code> e
-            tente de novo.
+            {state.error}. Verifique se o servidor está rodando com <code className="font-mono">npm start</code> e tente
+            de novo.
           </p>
           <Button variant="primary" onClick={reload}>
             Tentar de novo
@@ -50,6 +62,7 @@ function BoardView({
   const [planning, setPlanning] = useState(false);
   const [confirmingComplete, setConfirmingComplete] = useState(false);
   const [showingHistory, setShowingHistory] = useState(false);
+  const [view, setView] = useView();
   const [celebration, setCelebration] = useState<{ id: string; key: number } | null>(null);
   const editingCard = editingId === null ? undefined : board.cards.find((c) => c.id === editingId);
   // Recurring cards stay on the board, so only one-offs go back to the Backlog.
@@ -72,64 +85,72 @@ function BoardView({
   );
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-[1440px] flex-col gap-7 px-4 py-8 sm:px-8">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">{todayLabel()}</p>
-          <h1 className="font-display text-4xl font-extrabold tracking-tight text-balance sm:text-5xl">
-            {greeting()}
-          </h1>
-          <SaveIndicator status={saveStatus} />
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <ThemeToggle />
-          <Button variant="ghost" onClick={() => setShowingHistory(true)}>
-            <HistoryIcon />
-            Sprints anteriores
-            {board.history.length > 0 && (
-              <span className="rounded-full bg-zinc-900/5 px-1.5 text-xs font-bold tabular-nums dark:bg-white/10">
-                {board.history.length}
-              </span>
+    <div className="mx-auto flex min-h-dvh max-w-[1440px] flex-col px-4 py-8 sm:px-8">
+      <Tabs.Root value={view} onValueChange={(v) => setView(v as View)} className="flex flex-col gap-7">
+        <header className="flex flex-wrap items-end justify-between gap-4">
+          <div className="flex flex-col gap-1">
+            <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">{todayLabel()}</p>
+            <h1 className="font-display text-4xl font-extrabold tracking-tight text-balance sm:text-5xl">
+              {greeting()}
+            </h1>
+            <SaveIndicator status={saveStatus} />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <ViewSwitch />
+            <ThemeToggle />
+            <Button variant="ghost" onClick={() => setShowingHistory(true)}>
+              <HistoryIcon />
+              Sprints anteriores
+              {board.history.length > 0 && (
+                <span className="rounded-full bg-zinc-900/5 px-1.5 text-xs font-bold tabular-nums dark:bg-white/10">
+                  {board.history.length}
+                </span>
+              )}
+            </Button>
+            {board.sprint ? (
+              <Button onClick={() => setConfirmingComplete(true)}>
+                <FlagIcon />
+                Concluir sprint
+              </Button>
+            ) : (
+              <Button variant="primary" onClick={() => setPlanning(true)}>
+                <FlagIcon />
+                Iniciar sprint
+              </Button>
             )}
-          </Button>
-          {board.sprint ? (
-            <Button onClick={() => setConfirmingComplete(true)}>
-              <FlagIcon />
-              Concluir sprint
-            </Button>
-          ) : (
-            <Button variant="primary" onClick={() => setPlanning(true)}>
-              <FlagIcon />
-              Iniciar sprint
-            </Button>
-          )}
-        </div>
-      </header>
+          </div>
+        </header>
 
-      <SprintCard board={board} onStart={() => setPlanning(true)} />
+        <Tabs.Panel value="board" className="flex flex-col gap-7 outline-none">
+          <SprintCard board={board} onStart={() => setPlanning(true)} />
 
-      <LayoutGroup>
-        <main className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {STATUSES.map((status, i) => (
-            <motion.div
-              key={status}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: 0.05 * i, ease: "easeOut" }}
-            >
-              <Column
-                status={status}
-                title={STATUS_LABELS[status]}
-                cards={board.cards.filter((c) => c.status === status)}
-                dispatch={act}
-                onOpen={(card) => setEditingId(card.id)}
-                celebration={celebration}
-              />
-            </motion.div>
-          ))}
-        </main>
-      </LayoutGroup>
+          <LayoutGroup>
+            <main className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {STATUSES.map((status, i) => (
+                <motion.div
+                  key={status}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: 0.05 * i, ease: "easeOut" }}
+                >
+                  <Column
+                    status={status}
+                    title={STATUS_LABELS[status]}
+                    cards={board.cards.filter((c) => c.status === status)}
+                    dispatch={act}
+                    onOpen={(card) => setEditingId(card.id)}
+                    celebration={celebration}
+                  />
+                </motion.div>
+              ))}
+            </main>
+          </LayoutGroup>
+        </Tabs.Panel>
 
+        <Tabs.Panel value="dashboard" className="outline-none">
+          <Dashboard history={board.history} onGoToBoard={() => setView("board")} />
+        </Tabs.Panel>
+      </Tabs.Root>
 
       {showingHistory && <SprintHistoryDialog history={board.history} onClose={() => setShowingHistory(false)} />}
       {editingCard && <CardDialog card={editingCard} dispatch={act} onClose={() => setEditingId(null)} />}
@@ -156,6 +177,42 @@ function BoardView({
         onConfirm={() => dispatch({ type: "completeSprint", now: new Date().toISOString() })}
       />
     </div>
+  );
+}
+
+type View = "board" | "dashboard";
+
+/** Which tab is showing, kept in the URL (#painel) so a reload stays put. */
+function useView(): [View, (view: View) => void] {
+  const [view, setView] = useState<View>(() => (window.location.hash === "#painel" ? "dashboard" : "board"));
+  function change(next: View) {
+    setView(next);
+    window.history.replaceState(null, "", next === "dashboard" ? "#painel" : window.location.pathname);
+  }
+  return [view, change];
+}
+
+function ViewSwitch() {
+  const tab = cn(
+    "relative z-10 flex h-8 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-zinc-500 transition-colors duration-150",
+    "hover:text-zinc-900 data-active:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 dark:data-active:text-zinc-100",
+    "focus-visible:outline-2 focus-visible:outline-violet-600",
+  );
+  return (
+    <Tabs.List
+      aria-label="Visualização"
+      className="relative flex h-10 items-center rounded-xl bg-zinc-900/5 p-1 dark:bg-white/5"
+    >
+      <Tabs.Tab value="board" className={tab}>
+        <KanbanIcon />
+        Quadro
+      </Tabs.Tab>
+      <Tabs.Tab value="dashboard" className={tab}>
+        <ChartIcon />
+        Painel
+      </Tabs.Tab>
+      <Tabs.Indicator className="absolute top-1 left-0 h-8 w-(--active-tab-width) translate-x-(--active-tab-left) rounded-lg bg-white shadow-sm transition-[translate,width] duration-200 ease-out dark:bg-zinc-800" />
+    </Tabs.List>
   );
 }
 
@@ -250,7 +307,10 @@ function SaveIndicator({ status }: { status: SaveStatus }) {
   const { label, dot } = {
     saved: { label: "Todas as alterações salvas", dot: "bg-emerald-500" },
     saving: { label: "Salvando…", dot: "bg-violet-500 animate-pulse" },
-    error: { label: "Ainda não salvo. Sem conexão com o servidor, tentando de novo…", dot: "bg-amber-500 animate-pulse" },
+    error: {
+      label: "Ainda não salvo. Sem conexão com o servidor, tentando de novo…",
+      dot: "bg-amber-500 animate-pulse",
+    },
   }[status];
   return (
     <p
